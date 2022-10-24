@@ -1,4 +1,4 @@
-# Stratified Random Sampling on Neural Network Test Input Selection
+# Stratified Random Sampling for Neural Network Test Input Selection
 This is the homepage of **SSOA** including `tool implementation` and `DNN model training scripts`. 
 
 #### Environment configuration
@@ -8,9 +8,13 @@ Before running SSOA, please make sure you have installed various related package
 Please use the following command to execute SSOA:
 
 ```shell
-python selection_optimum_train_kmeans.py --exp_id=cn12
+python ssoamt.py --exp_id=cifar10_vgg16
 
-python selection_optimum_adaptive_kmeans.py --exp_id=cn12
+python ssoamp.py --exp_id=cifar10_vgg16 --random_seed=0
+
+python ssoact.py --exp_id=cifar10_vgg16 --cluster_alg=kmeans --cluster_num=3
+
+python ssoacp.py --exp_id=cifar10_vgg16 --cluster_alg=kmeans --cluster_num=3 --random_seed=0
 ```
 
 - `exp_id` : the id of the model, including 'cn12', 'cifar10_vgg16', and 'cifar100_vgg16' 
