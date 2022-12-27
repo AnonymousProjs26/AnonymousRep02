@@ -5,13 +5,13 @@ import os
 import numpy as np
 import tensorflow.keras.backend as K
 from collections import defaultdict
-import matplotlib.pyplot as plt
 import tensorflow.keras as keras
 from sklearn.metrics import *
 from tensorflow.keras.datasets import cifar10, cifar100
 from tensorflow.keras.models import load_model
 import argparse
 from tensorflow.keras.applications import vgg19, resnet50
+import openpyxl
 
 def get_score(x_test, y_test, model):
     score = model.evaluate(x_test, y_test, verbose=0)
@@ -157,11 +157,11 @@ def get_cifar10_cn12(**kwargs):
     (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
     X_test = X_test.astype('float32')
     X_test = (X_test / 255.0) - (1.0 - 0.5)
-    Y_test = keras.utils.to_categorical(Y_test, 10)
+    # Y_test = keras.utils.to_categorical(Y_test, 10)
 
     X_train = X_train.astype('float32')
     X_train = (X_train / 255.0) - (1.0 - 0.5)
-    Y_train = keras.utils.to_categorical(Y_train, 10)
+    # Y_train = keras.utils.to_categorical(Y_train, 10)
     return X_test, Y_test, X_train, Y_train
 
 
@@ -176,8 +176,8 @@ def get_cifar10_vgg16(**kwargs):
     X_train = (X_train - mean) / (std + 1e-7)
     X_test = (X_test - mean) / (std + 1e-7)
 
-    Y_test = keras.utils.to_categorical(Y_test, 10)
-    Y_train = keras.utils.to_categorical(Y_train, 10)
+    # Y_test = keras.utils.to_categorical(Y_test, 10)
+    # Y_train = keras.utils.to_categorical(Y_train, 10)
     return X_test, Y_test, X_train, Y_train
 
 
@@ -192,8 +192,8 @@ def get_cifar100_vgg16(**kwargs):
     X_train = (X_train - mean) / (std + 1e-7)
     X_test = (X_test - mean) / (std + 1e-7)
 
-    Y_test = keras.utils.to_categorical(Y_test, 100)
-    Y_train = keras.utils.to_categorical(Y_train, 100)
+    # Y_test = keras.utils.to_categorical(Y_test, 100)
+    # Y_train = keras.utils.to_categorical(Y_train, 100)
     return X_test, Y_test, X_train, Y_train
 
 def get_imagenet(**kwargs):
@@ -263,12 +263,15 @@ if __name__ == '__main__':
 
     model = get_model(exp_id=exp_id)
     x_test, y_test, x_train, y_train = get_data(exp_id=exp_id)
-    print(my_model.summary())
-    print(X_test.shape)
-    print(X_train.shape)
+    print(model.summary())
+    print(x_test.shape)
+    print(x_train.shape)
 
-    # get_score(X_test,Y_test,my_model)
-    # get_score(X_train,Y_train,my_model)
+    y_test = y_test.squeeze()
+    y_train = y_train.squeeze()
+
+    # get_score(x_test,y_test,my_model)
+    # get_score(x_train,y_train,my_model)
 
     start = datetime.datetime.now()
 
@@ -282,11 +285,17 @@ if __name__ == '__main__':
         acc1 = np.square(np.array(acc1) - acc)
         acc2 = np.square(np.array(acc2) - acc)
 
-        acc_select.append(acc_list1)
-        acc_random.append(acc_list2)
+        acc_select.append(acc1)
+        acc_random.append(acc2)
 
         elapsed = (datetime.datetime.now() - start)
         print("Time used: ", elapsed)
+
+    acc_select = np.array(acc_select)
+    acc_random = np.array(acc_random)
+
+    mse_select = np.sqrt(acc_select.mean(axis=0))
+    mse_random = np.sqrt(acc_random.mean(axis=0))
 
     # save the result
     workbook = openpyxl.Workbook()
